@@ -70,6 +70,14 @@ export class OrderSummary extends Component {
     async updateSelectedOrderline({ buffer, key }) {
         const order = this.pos.get_order();
         const selectedLine = order.get_selected_orderline();
+        if (selectedLine.product_id.to_weight) {
+            if (this.pos.numpadMode === "quantity") {
+                if (key === "Backspace") {
+                    this._setValue("remove");
+                }
+                return;
+            }
+        }
         // This validation must not be affected by `disallowLineQuantityChange`
         if (selectedLine && selectedLine.isTipLine() && this.pos.numpadMode !== "price") {
             /**

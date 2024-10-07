@@ -26,6 +26,7 @@ import {
 import { deserializeDate } from "@web/core/l10n/dates";
 import { PartnerList } from "../screens/partner_list/partner_list";
 import { ScaleScreen } from "../screens/scale_screen/scale_screen";
+import { ArruScreen } from "../screens/arru_screen/arru_screen";
 import { computeComboItems } from "../models/utils/compute_combo_items";
 import { changesToOrder, getOrderChanges } from "../models/utils/order_change";
 import { getTaxesAfterFiscalPosition, getTaxesValues } from "../models/utils/tax_utils";
@@ -803,15 +804,18 @@ export class PosStore extends Reactive {
                     uomRounding: values.product_id.uom_id?.rounding,
                     productPrice: this.getProductPrice(values.product_id),
                 };
-                const weight = await makeAwaitable(
+                const payload = await makeAwaitable(
                     this.env.services.dialog,
-                    ScaleScreen,
+                    ArruScreen,
                     this.scaleData
                 );
-                if (!weight) {
+                if (!payload) {
                     return;
                 }
-                values.qty = weight;
+
+                values.note = `${payload.quantity} objet${payload.quantity > 1 ? 's' : ''}, ${payload.weight} kg, niveau de traitement ${payload.level}`;
+                values.price_unit = payload.price;
+                vals.price_unit = payload.price;
                 this.isScaleScreenVisible = false;
                 this.scaleWeight = 0;
                 this.scaleTare = 0;

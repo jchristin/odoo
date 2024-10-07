@@ -25,6 +25,9 @@ class PosOrderReport(models.Model):
     price_sub_total = fields.Float(string='Subtotal w/o discount', readonly=True)
     price_subtotal_excl = fields.Float(string='Subtotal w/o Tax', readonly=True)
     total_discount = fields.Float(string='Total Discount', readonly=True)
+    object_count = fields.Integer(string='Nombre d\'objets', readonly=True)
+    weight = fields.Float(string='Poids', readonly=True)
+    level_id = fields.Selection([], string='Niveau de traitement', readonly=True)
     average_price = fields.Float(string='Average Price', readonly=True, aggregator="avg")
     company_id = fields.Many2one('res.company', string='Company', readonly=True)
     nbr_lines = fields.Integer(string='Sale Line Count', readonly=True)
@@ -74,6 +77,9 @@ class PosOrderReport(models.Model):
                 s.company_id AS company_id,
                 s.sale_journal AS journal_id,
                 l.product_id AS product_id,
+                CASE WHEN l.note ~ '(\d+)\s*objet' THEN CAST(SUBSTRING(l.note FROM '(\d+)\s*objet') AS int) ELSE 0 END AS object_count,
+                CASE WHEN l.note ~ '(\d*\.?\d+)\s*kg' THEN CAST(SUBSTRING(l.note FROM '(\d*\.?\d+)\s*kg') AS float) ELSE 0 END AS weight,
+                INITCAP(SUBSTRING(l.note FROM 'niveau de traitement\s\d')) AS level_id,
                 pt.categ_id AS product_categ_id,
                 p.product_tmpl_id,
                 ps.config_id,
@@ -103,6 +109,17 @@ class PosOrderReport(models.Model):
 
     def _group_by(self):
         return ""
+
+    # def __init__(self, a, b, c):
+    #     super().__init__(a, b, c)
+    #     tools.drop_view_if_exists(self._cr, self._table)
+    #     self._cr.execute("""
+    #         CREATE OR REPLACE VIEW %s AS (
+    #             %s
+    #             %s
+    #         )
+    #     """ % (self._table, self._select(), self._from())
+    #     )
 
     def init(self):
         tools.drop_view_if_exists(self._cr, self._table)

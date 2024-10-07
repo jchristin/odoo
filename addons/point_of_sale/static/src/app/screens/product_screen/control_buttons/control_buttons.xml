@@ -3,7 +3,7 @@
     <t t-name="point_of_sale.ControlButtons">
         <!-- All buttons always displayed -->
         <SelectPartnerButton partner="partner" t-if="!props.showRemainingButtons"/>
-        <t t-if="!props.showRemainingButtons || (ui.isSmall and props.showRemainingButtons)">
+        <t t-if="false">
             <OrderlineNoteButton
                 label="internalNoteLabel()"
                 getter="(orderline) => orderline.getNote()"
